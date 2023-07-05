@@ -7,7 +7,7 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "bin": {
-    "code-factory": "./index.js"
+    "code-factory": "index.js"
   },
   "author": "Fasil Paloli",
   "license": "ISC",
@@ -15,5 +15,21 @@
     "ejs": "^3.1.9",
     "fs": "0.0.1-security",
     "ts-morph": "^19.0.0"
-  }
+  },
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fasilpaloli/code-factory.git"
+  },
+  "keywords": [
+    "nodejs",
+    "script",
+    "typescript",
+    "auto generate codes",
+    "crud builder"
+  ],
+  "bugs": {
+    "url": "https://github.com/fasilpaloli/code-factory/issues"
+  },
+  "homepage": "https://github.com/fasilpaloli/code-factory#readme"
 }
