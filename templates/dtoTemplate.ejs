@@ -1,0 +1,12 @@
+import { IsNotEmpty, IsOptional, IsString, IsBoolean, IsNumber } from 'class-validator';
+
+export class Create<%= modelName %>Dto {
+  <% fields.forEach(function(field) { %> 
+  <% if(field.name !== '_id' && field.name !== 'createdAt' && field.name !== 'updatedAt'){ %>
+  <% if(field.name === 'name') { %>@IsNotEmpty()<% } else { %>@IsOptional()<% } %>
+  <% if(field.type === 'String') { %>@IsString()<% } %>
+  <% if(field.type === 'Boolean') { %>@IsBoolean()<% } %>
+  <% if(field.type === 'Number') { %>@IsNumber()<% } %>
+  public <%= field.name %>: <%= field.type.toLowerCase() %>;
+  <% }}) %>
+}

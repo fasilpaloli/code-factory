@@ -1,0 +1,7 @@
+import { Document } from "mongoose";
+
+export interface <%= modelName %> extends Document {
+<% fields.forEach(field => { %>
+    <%= field.name %>: <%= field.type %>;
+<% }) %>
+}

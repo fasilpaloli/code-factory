@@ -1,0 +1,19 @@
+{
+  "name": "code-factory",
+  "version": "1.0.0",
+  "description": "one-stop solution for auto-generating scripts for CRUD operations and associated files in Node.js applications. Spend less time setting up and more time coding",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "bin": {
+    "code-factory": "./index.js"
+  },
+  "author": "Fasil Paloli",
+  "license": "ISC",
+  "dependencies": {
+    "ejs": "^3.1.9",
+    "fs": "0.0.1-security",
+    "ts-morph": "^19.0.0"
+  }
+}

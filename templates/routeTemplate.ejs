@@ -1,0 +1,28 @@
+import { Router } from 'express';
+import { Create<%= modelName %>Dto } from '@dtos/<%= modelName.toLowerCase() %>.dto';
+import { Routes } from '@interfaces/routes.interface';
+import validationMiddleware from '@middlewares/validation.middleware';
+import <%= modelName %>Controller from '@/controllers/<%= modelName.toLowerCase() %>.controller';
+import { adminMiddleware } from '@/middlewares/auth.middleware';
+
+class <%= modelName %>Route implements Routes {
+  public path = '/<%= modelName.toLowerCase() %>';
+  public router = Router();
+  public <%= modelName.toLowerCase() %>Controller = new <%= modelName %>Controller();
+
+  constructor() {
+    this.initializeRoutes();
+  }
+
+  private initializeRoutes() {
+
+    this.router.get(`${this.path}/admin/all`, adminMiddleware, this.<%= modelName.toLowerCase() %>Controller.get<%= modelName %>s);
+    this.router.get(`${this.path}/admin/:id`, adminMiddleware, this.<%= modelName.toLowerCase() %>Controller.get<%= modelName %>ById);
+    this.router.post(`${this.path}/admin/new`, validationMiddleware(Create<%= modelName %>Dto, 'body', false), adminMiddleware, this.<%= modelName.toLowerCase() %>Controller.create<%= modelName %>);
+    this.router.put(`${this.path}/admin/:id`, validationMiddleware(Create<%= modelName %>Dto, 'body', false), adminMiddleware, this.<%= modelName.toLowerCase() %>Controller.update<%= modelName %>);
+    this.router.delete(`${this.path}/admin/:id`, adminMiddleware, this.<%= modelName.toLowerCase() %>Controller.delete<%= modelName %>);
+
+  }
+}
+
+export default <%= modelName %>Route;

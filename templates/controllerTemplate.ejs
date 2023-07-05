@@ -1,0 +1,68 @@
+import { NextFunction, Request, Response } from 'express';
+import { Create<%= modelName %>Dto } from '@dtos/<%= modelName.toLowerCase() %>.dto';
+import { <%= modelName %> } from '@interfaces/<%= modelName.toLowerCase() %>.interface';
+import <%= modelName %>Service from '@/services/<%= modelName.toLowerCase() %>.service';
+
+class <%= modelName %>Controller {
+  public <%= modelName.toLowerCase() %>Service = new <%= modelName %>Service();
+
+  public get<%= modelName %>s = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const query = req.query
+      const page: string = (query.page || '1') as string;
+      const limit: string = (query.limit || '10') as string;
+      const findAll<%= modelName %>Data: any = await this.<%= modelName.toLowerCase() %>Service.findAll(page, limit, query);
+
+      res.status(200).json(findAll<%= modelName %>Data);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  public get<%= modelName %>ById = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const <%= modelName.toLowerCase() %>Id: string = req.params.id;
+      const findOne<%= modelName %>Data: <%= modelName %> = await this.<%= modelName.toLowerCase() %>Service.findById(<%= modelName.toLowerCase() %>Id);
+
+      res.status(200).json(findOne<%= modelName %>Data);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  public create<%= modelName %> = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const <%= modelName.toLowerCase() %>Data: Create<%= modelName %>Dto = req.body;
+      const create<%= modelName %>Data: <%= modelName %> = await this.<%= modelName.toLowerCase() %>Service.create(<%= modelName.toLowerCase() %>Data);
+
+      res.status(200).json(create<%= modelName %>Data);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  public update<%= modelName %> = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const <%= modelName.toLowerCase() %>Id: string = req.params.id;
+      const <%= modelName.toLowerCase() %>Data: Create<%= modelName %>Dto = req.body;
+      const update<%= modelName %>Data: <%= modelName %> = await this.<%= modelName.toLowerCase() %>Service.update(<%= modelName.toLowerCase() %>Id, <%= modelName.toLowerCase() %>Data);
+
+      res.status(200).json(update<%= modelName %>Data);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  public delete<%= modelName %> = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const <%= modelName.toLowerCase() %>Id: string = req.params.id;
+      const delete<%= modelName %>Data: <%= modelName %> = await this.<%= modelName.toLowerCase() %>Service.delete(<%= modelName.toLowerCase() %>Id);
+
+      res.status(200).json(delete<%= modelName %>Data);
+    } catch (error) {
+      next(error);
+    }
+  };
+}
+
+export default <%= modelName %>Controller;
