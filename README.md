@@ -7,7 +7,7 @@ Code Factory is an npm package that automates the generation of CRUD (Create, Re
 You can install Code Factory using npm:
 
 ```shell
-npm install code-factory
+npm install code-factory-osperb
 
 Usage
 To use Code Factory in your project, follow these steps:
