@@ -36,11 +36,11 @@ function generateFiles(modelName) {
         var templateData = { modelName: modelName, fields: fields };
         var serviceTemplate, controllerTemplate, interfaceTemplate, dtoTemplate, routeTemplate;
         try {
-            serviceTemplate = fs_1.readFileSync('./templates/serviceTemplate.ejs', 'utf-8');
-            controllerTemplate = fs_1.readFileSync('./templates/controllerTemplate.ejs', 'utf-8');
-            interfaceTemplate = fs_1.readFileSync('./templates/interfaceTemplate.ejs', 'utf-8');
-            dtoTemplate = fs_1.readFileSync('./templates/dtoTemplate.ejs', 'utf-8');
-            routeTemplate = fs_1.readFileSync('./templates/routeTemplate.ejs', 'utf-8');
+            serviceTemplate = fs_1.readFileSync(path.join(__dirname, "templates/serviceTemplate.ejs"), "utf-8");
+            controllerTemplate = fs_1.readFileSync(path.join(__dirname, './templates/controllerTemplate.ejs'), 'utf-8');
+            interfaceTemplate = fs_1.readFileSync(path.join(__dirname, './templates/interfaceTemplate.ejs'), 'utf-8');
+            dtoTemplate = fs_1.readFileSync(path.join(__dirname, './templates/dtoTemplate.ejs'), 'utf-8');
+            routeTemplate = fs_1.readFileSync(path.join(__dirname, './templates/routeTemplate.ejs'), 'utf-8');
         } catch (error) {
             throw new Error('Failed to read template files. Ensure the file paths are correct and you have the necessary permissions.');
         }

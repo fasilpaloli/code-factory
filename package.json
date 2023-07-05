@@ -1,6 +1,6 @@
 {
   "name": "code-factory-osperb",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "description": "one-stop solution for auto-generating scripts for CRUD operations and associated files in Node.js applications. Spend less time setting up and more time coding",
   "main": "index.js",
   "scripts": {
