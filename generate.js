@@ -1,86 +1,121 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var fs_1 = require("fs");
-var ejs_1 = require("ejs");
-var ts_morph_1 = require("ts-morph");
-var path = require("path");
+const fs_1 = require("fs");
+const ejs_1 = require("ejs");
+const ts_morph_1 = require("ts-morph");
+const path = require("path");
 
 function ensureDirectoryExistence(filePath) {
-    var dirname = path.dirname(filePath);
-    if (fs_1.existsSync(dirname)) {
-        return true;
-    }
-    ensureDirectoryExistence(dirname);
-    fs_1.mkdirSync(dirname);
+  const dirname = path.dirname(filePath);
+  if (fs_1.existsSync(dirname)) {
+    return true;
+  }
+  ensureDirectoryExistence(dirname);
+  fs_1.mkdirSync(dirname);
 }
 
 function generateFiles(modelName) {
+  try {
+    const project = new ts_morph_1.Project();
+    let sourceFile;
     try {
-        var project = new ts_morph_1.Project();
-        var sourceFile;
-        try {
-            sourceFile = project.addSourceFileAtPath("./src/models/".concat(modelName.toLowerCase(), ".model.ts"));
-        } catch (error) {
-            throw new Error('The model file could not be found. Please ensure the file path is correct.');
-        }
-
-        // Define fields array here
-        var fields = [];
-
-        // Get the "Schema" object
-        var schemaDeclaration = sourceFile.getVariableDeclarationOrThrow("".concat(modelName.toLowerCase(), "Schema"));
-
-
-        // Rest of the operations...
-
-        var templateData = { modelName: modelName, fields: fields };
-        var serviceTemplate, controllerTemplate, interfaceTemplate, dtoTemplate, routeTemplate;
-        try {
-            serviceTemplate = fs_1.readFileSync(path.join(__dirname, "templates/serviceTemplate.ejs"), "utf-8");
-            controllerTemplate = fs_1.readFileSync(path.join(__dirname, './templates/controllerTemplate.ejs'), 'utf-8');
-            interfaceTemplate = fs_1.readFileSync(path.join(__dirname, './templates/interfaceTemplate.ejs'), 'utf-8');
-            dtoTemplate = fs_1.readFileSync(path.join(__dirname, './templates/dtoTemplate.ejs'), 'utf-8');
-            routeTemplate = fs_1.readFileSync(path.join(__dirname, './templates/routeTemplate.ejs'), 'utf-8');
-        } catch (error) {
-            throw new Error('Failed to read template files. Ensure the file paths are correct and you have the necessary permissions.');
-        }
-
-        var serviceContent, controllerContent, interfaceContent, dtoContent, routeContent;
-        try {
-            serviceContent = ejs_1.render(serviceTemplate, templateData);
-            controllerContent = ejs_1.render(controllerTemplate, templateData);
-            interfaceContent = ejs_1.render(interfaceTemplate, templateData);
-            dtoContent = ejs_1.render(dtoTemplate, templateData);
-            routeContent = ejs_1.render(routeTemplate, templateData);
-        } catch (error) {
-            throw new Error('Failed to render templates. Check your template files for errors.');
-        }
-
-        try {
-            var servicePath = "./src/services/".concat(modelName.toLowerCase(), ".service.ts");
-            var controllerPath = "./src/controllers/".concat(modelName.toLowerCase(), ".controller.ts");
-            var interfacePath = "./src/interfaces/".concat(modelName.toLowerCase(), ".interface.ts");
-            var dtoPath = "./src/dtos/".concat(modelName.toLowerCase(), ".dto.ts");
-            var routePath = "./src/routes/".concat(modelName.toLowerCase(), ".route.ts");
-
-            ensureDirectoryExistence(servicePath);
-            ensureDirectoryExistence(controllerPath);
-            ensureDirectoryExistence(interfacePath);
-            ensureDirectoryExistence(dtoPath);
-            ensureDirectoryExistence(routePath);
-
-            fs_1.writeFileSync(servicePath, serviceContent);
-            fs_1.writeFileSync(controllerPath, controllerContent);
-            fs_1.writeFileSync(interfacePath, interfaceContent);
-            fs_1.writeFileSync(dtoPath, dtoContent);
-            fs_1.writeFileSync(routePath, routeContent);
-        } catch (error) {
-            throw new Error('Failed to write the output files. Ensure you have the necessary permissions and the output directory exists.');
-        }
+      sourceFile = project.addSourceFileAtPath(
+        `./src/models/${modelName.toLowerCase()}.model.ts`
+      );
     } catch (error) {
-        console.error(error.message);
-        process.exit(1);
+      throw new Error("The model file could not be found. Please ensure the file path is correct.");
     }
+
+    const fields = [];
+    const schemaDeclaration = sourceFile.getVariableDeclarationOrThrow(`${modelName.toLowerCase()}Schema`);
+    const schemaInitializer = schemaDeclaration.getInitializerIfKindOrThrow(
+      ts_morph_1.SyntaxKind.NewExpression
+    );
+    const schemaObjectLiteral = schemaInitializer.getArguments()[0].asKindOrThrow(
+      ts_morph_1.SyntaxKind.ObjectLiteralExpression
+    );
+
+    schemaObjectLiteral.forEachDescendant((descendant) => {
+      if (descendant.getKind() === ts_morph_1.SyntaxKind.PropertyAssignment) {
+        const assignment = descendant;
+        const initializer = assignment.getInitializerIfKind(
+          ts_morph_1.SyntaxKind.ObjectLiteralExpression
+        );
+        if (initializer) {
+          const typeProperty = initializer.getProperty("type");
+          if (typeProperty && typeProperty.getKind() === ts_morph_1.SyntaxKind.PropertyAssignment) {
+            const typeAssignment = typeProperty;
+            const typeName = typeAssignment.getInitializer()?.getText();
+            if (typeName) {
+              fields.push({ name: assignment.getName(), type: typeName });
+            }
+          }
+        }
+      }
+    });
+
+    const templateData = { modelName: modelName, fields: fields };
+    const templatesFolderPath = path.join(__dirname, "templates");
+
+    const serviceTemplate = fs_1.readFileSync(
+      path.join(templatesFolderPath, "serviceTemplate.ejs"),
+      "utf-8"
+    );
+    const controllerTemplate = fs_1.readFileSync(
+      path.join(templatesFolderPath, "controllerTemplate.ejs"),
+      "utf-8"
+    );
+    const interfaceTemplate = fs_1.readFileSync(
+      path.join(templatesFolderPath, "interfaceTemplate.ejs"),
+      "utf-8"
+    );
+    const dtoTemplate = fs_1.readFileSync(
+      path.join(templatesFolderPath, "dtoTemplate.ejs"),
+      "utf-8"
+    );
+    const routeTemplate = fs_1.readFileSync(
+      path.join(templatesFolderPath, "routeTemplate.ejs"),
+      "utf-8"
+    );
+
+    const serviceContent = ejs_1.render(serviceTemplate, templateData);
+    const controllerContent = ejs_1.render(controllerTemplate, templateData);
+    const interfaceContent = ejs_1.render(interfaceTemplate, templateData);
+    const dtoContent = ejs_1.render(dtoTemplate, templateData);
+    const routeContent = ejs_1.render(routeTemplate, templateData);
+
+    const outputFolderPath = path.join(__dirname, "src");
+
+    ensureDirectoryExistence(path.join(outputFolderPath, "services"));
+    ensureDirectoryExistence(path.join(outputFolderPath, "controllers"));
+    ensureDirectoryExistence(path.join(outputFolderPath, "interfaces"));
+    ensureDirectoryExistence(path.join(outputFolderPath, "dtos"));
+    ensureDirectoryExistence(path.join(outputFolderPath, "routes"));
+
+    fs_1.writeFileSync(
+      path.join(outputFolderPath, "services", `${modelName.toLowerCase()}.service.ts`),
+      serviceContent
+    );
+    fs_1.writeFileSync(
+      path.join(outputFolderPath, "controllers", `${modelName.toLowerCase()}.controller.ts`),
+      controllerContent
+    );
+    fs_1.writeFileSync(
+      path.join(outputFolderPath, "interfaces", `${modelName.toLowerCase()}.interface.ts`),
+      interfaceContent
+    );
+    fs_1.writeFileSync(
+      path.join(outputFolderPath, "dtos", `${modelName.toLowerCase()}.dto.ts`),
+      dtoContent
+    );
+    fs_1.writeFileSync(
+      path.join(outputFolderPath, "routes", `${modelName.toLowerCase()}.route.ts`),
+      routeContent
+    );
+  } catch (error) {
+    console.error(error.message);
+    process.exit(1);
+  }
 }
 
 module.exports = { generateFiles };
