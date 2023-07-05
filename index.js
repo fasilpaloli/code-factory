@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 const generateFiles = require('./generate').generateFiles;
 
 if (process.argv.length > 2) {
